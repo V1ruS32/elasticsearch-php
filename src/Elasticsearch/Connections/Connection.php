@@ -123,10 +123,10 @@ class Connection implements ConnectionInterface
 
         // Add the User-Agent using the format: <client-repo-name>/<client-version> (metadata-values)
         $this->headers['User-Agent'] = [sprintf(
-            "elasticsearch-php/%s (%s %s, PHP %s)",
+            "elasticsearch-php/%s (%s %s; PHP %s)",
             Client::VERSION,
-            php_uname("s"),
-            php_uname("r"),
+            PHP_OS,
+            $this->getOSVersion(),
             phpversion()
         )];
 
@@ -357,6 +357,7 @@ class Connection implements ConnectionInterface
      *
      * @return void
      */
+    
     public function logRequestSuccess($method, $fullURI, $body, $headers, $statusCode, $response, $duration)
     {
         $this->log->debug('Request Body', array($body));
@@ -734,5 +735,20 @@ class Connection implements ConnectionInterface
 
         // <2.0 "i just blew up" nonstructured exception
         return new $errorClass($response['body']);
+    }
+    /**
+     * Get the OS version using php_uname if available
+     * otherwise it returns an empty string
+     *
+     * @see https://github.com/elastic/elasticsearch-php/issues/922
+     */
+    private function getOSVersion(): string
+    {
+        if ($this->OSVersion === null) {
+            $this->OSVersion = strpos(strtolower(ini_get('disable_functions')), 'php_uname') !== false
+                ? ''
+                : php_uname("r");
+        }
+        return $this->OSVersion;
     }
 }
