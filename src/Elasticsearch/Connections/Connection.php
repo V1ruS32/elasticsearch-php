@@ -91,6 +91,11 @@ class Connection implements ConnectionInterface
     private $lastRequest = array();
 
     /**
+     * @var string
+     */
+    private $OSVersion = null;
+
+    /**
      * Constructor
      *
      * @param $handler
